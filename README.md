@@ -2,6 +2,10 @@
 
 [English](#github-scroll-to-resolved-comment) · [한국어](#한국어)
 
+[![Greasy Fork version](https://img.shields.io/greasyfork/v/580818)](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)
+[![Greasy Fork installs](https://img.shields.io/greasyfork/dt/580818)](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
 A userscript that fixes GitHub's broken permalinks to **resolved (collapsed) review comments**. When you open a `...#discussion_r…` link to a resolved comment, GitHub doesn't scroll to it — the thread is collapsed and has no layout position. This script **auto-expands the thread, scrolls to the comment, and briefly highlights it**.
 
 > A long-standing GitHub bug, unresolved for 4+ years — [community discussion #10367](https://github.com/orgs/community/discussions/10367).
@@ -19,9 +23,9 @@ A userscript that fixes GitHub's broken permalinks to **resolved (collapsed) rev
    - **Chrome / Edge 138+**: right-click the Tampermonkey icon → **Manage extension** → turn on **"Allow user scripts"**.
    - **Older versions**: open `chrome://extensions` (or `edge://extensions`) → enable **Developer mode** (top-right).
    - Firefox / Safari: not needed.
-3. Click the link below and confirm **Install** in your manager:
+3. Install the script and confirm **Install** in your manager:
 
-   👉 **[Install](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)**
+   👉 **[Install from Greasy Fork](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)** (recommended) — or [install the raw file](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)
 
 After installing, open any resolved comment's `…` menu → **Copy link** and try it. Your manager keeps the script up to date automatically.
 
@@ -63,9 +67,9 @@ GitHub PR에서 **resolve되어 접힌 리뷰 코멘트의 permalink**(`...#disc
    - **Chrome / Edge 138 이상**: Tampermonkey 아이콘 우클릭 → **확장 프로그램 관리** → **"사용자 스크립트 허용(Allow user scripts)"** 토글 **ON**
    - **그 이전 버전**: `chrome://extensions` (Edge는 `edge://extensions`) → 우측 상단 **개발자 모드** **ON**
    - Firefox / Safari 는 불필요
-3. 아래 링크를 클릭하고 매니저 팝업에서 **Install**:
+3. 스크립트를 설치하고 매니저 팝업에서 **Install**:
 
-   👉 **[설치](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)**
+   👉 **[Greasy Fork에서 설치](https://greasyfork.org/ko/scripts/580818-github-scroll-to-resolved-comment)** (권장) — 또는 [raw 파일로 설치](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)
 
 설치 후 resolve된 코멘트의 `…` 메뉴 → **Copy link** URL을 열어 확인하세요. 업데이트는 매니저가 자동으로 갱신합니다.
 
