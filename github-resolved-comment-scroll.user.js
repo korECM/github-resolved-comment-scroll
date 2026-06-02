@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name         GitHub: Scroll to Resolved Comment
 // @namespace    https://github.com/korECM
-// @version      0.2.0
-// @description  GitHub PR에서 resolve되어 접힌 리뷰 코멘트의 permalink(#discussion_r…)로 이동했을 때, 해당 스레드를 자동으로 펼치고(지연 로드 포함) 그 위치로 스크롤 + 하이라이트합니다.
+// @version      0.2.1
+// @description  Auto-expand, scroll to, and highlight resolved (collapsed) review comments when you open their permalink (#discussion_r…) on GitHub PRs.
+// @description:ko  GitHub PR에서 resolve되어 접힌 리뷰 코멘트의 permalink(#discussion_r…)로 이동하면, 해당 스레드를 자동으로 펼치고(지연 로드 포함) 그 위치로 스크롤 + 하이라이트합니다.
 // @author       korECM
 // @match        https://github.com/*
 // @run-at       document-idle
