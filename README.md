@@ -2,9 +2,13 @@
 
 [English](#github-scroll-to-resolved-comment) · [한국어](#한국어)
 
+[![Install — one click](https://img.shields.io/badge/Install-one--click-2ea44f?style=for-the-badge&logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)
+
 [![Greasy Fork version](https://img.shields.io/greasyfork/v/580818)](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)
 [![Greasy Fork installs](https://img.shields.io/greasyfork/dt/580818)](https://greasyfork.org/en/scripts/580818-github-scroll-to-resolved-comment)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
+> One click to install — a userscript manager is required (and Chrome/Edge needs userscripts enabled once; see [Install](#install)).
 
 A userscript that fixes GitHub's broken permalinks to **resolved (collapsed) review comments**. When you open a `...#discussion_r…` link to a resolved comment, GitHub doesn't scroll to it — the thread is collapsed and has no layout position. This script **auto-expands the thread, scrolls to the comment, and briefly highlights it**.
 
@@ -49,6 +53,10 @@ Issues and pull requests are welcome: <https://github.com/korECM/github-resolved
 # 한국어
 
 [English](#github-scroll-to-resolved-comment) · [한국어](#한국어)
+
+[![원클릭 설치](https://img.shields.io/badge/설치-원클릭-2ea44f?style=for-the-badge&logo=greasyfork&logoColor=white)](https://greasyfork.org/ko/scripts/580818-github-scroll-to-resolved-comment)
+
+> 클릭 한 번으로 설치 — 유저스크립트 매니저가 필요하며, Chrome/Edge는 유저스크립트 실행을 한 번 켜야 합니다 ([설치](#설치) 참고).
 
 GitHub PR에서 **resolve되어 접힌 리뷰 코멘트의 permalink**(`...#discussion_r…`)로 이동하면 그 위치로 스크롤되지 않는 문제를 고치는 유저스크립트입니다. resolve된 스레드는 접힌 상태라 레이아웃 좌표가 없어 GitHub이 스크롤하지 못합니다. 이 스크립트는 permalink로 들어오면 **해당 스레드를 자동으로 펼치고 → 스크롤 → 잠깐 하이라이트**합니다.
 
