@@ -18,11 +18,17 @@ resolve된 리뷰 스레드는 PR Conversation 탭에서 **접힌 상태(`displa
 1. 브라우저에 유저스크립트 매니저를 설치합니다.
    - [Tampermonkey](https://www.tampermonkey.net/) (Chrome/Edge/Firefox/Safari) — 권장
    - 또는 [Violentmonkey](https://violentmonkey.github.io/)
-2. 아래 링크를 클릭하면 매니저가 설치 팝업을 자동으로 띄웁니다 → **Install** 클릭.
+2. **⚠️ Chrome / Edge 사용자는 "유저스크립트 실행 권한"을 먼저 켜야 합니다.**
+   Tampermonkey 5.3+ 부터 Chrome 계열에서는 이 설정 없이는 **어떤 유저스크립트도 실행되지 않습니다** ([Tampermonkey FAQ Q209](https://www.tampermonkey.net/faq.php?q=Q209)). 둘 중 하나를 켜세요:
+   - **Chrome / Edge 138 이상**: Tampermonkey 아이콘 우클릭 → **확장 프로그램 관리(Manage extension)** → **"사용자 스크립트 허용(Allow user scripts)"** 토글 **ON**
+   - **그 이전 버전**: 주소창에 `chrome://extensions` (Edge는 `edge://extensions`) → 우측 상단 **개발자 모드(Developer mode)** 토글 **ON**
+   - Firefox / Safari 는 이 단계가 필요 없습니다.
+
+3. 아래 링크를 클릭하면 매니저가 설치 팝업을 자동으로 띄웁니다 → **Install** 클릭.
 
    👉 **[github-resolved-comment-scroll.user.js 설치](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)**
 
-3. 끝. GitHub PR에서 resolve된 코멘트 링크로 이동해 보세요.
+4. 끝. GitHub PR에서 resolve된 코멘트 링크로 이동해 보세요.
 
 스크립트가 업데이트되면 매니저가 `@updateURL`을 통해 **자동으로 갱신**합니다.
 
@@ -51,9 +57,10 @@ GitHub DOM은 자주 바뀌므로(2026년 현재 resolved 스레드는 `<review-
 
 ## 문제 해결
 
-**설치했는데 아무 동작도 안 한다면** — 스크립트가 실행조차 안 되는 경우가 대부분입니다. GitHub은 CSP로 인라인 스크립트(`script-src github.githubassets.com`)를 차단하므로, `@grant none` 유저스크립트는 페이지에 주입되지 못하고 막힙니다. 이 스크립트는 `@grant GM_addStyle`을 선언해 **샌드박스(격리 컨텍스트)** 에서 실행되어 CSP를 우회합니다 — `@grant`를 `none`으로 되돌리지 마세요.
+**설치했는데 아무 동작도 안 한다면** — 콘솔에서 `document.getElementById('grcs-style')`를 실행해 보세요. `null`이면 스크립트가 실행조차 안 되는 것입니다. 흔한 원인 두 가지:
 
-콘솔에서 `document.getElementById('grcs-style')`가 `null`이면 스크립트가 안 돌고 있는 것입니다(매니저 활성화/설치 상태 확인).
+1. **Chrome / Edge 유저스크립트 권한 미설정** (팀원에게 가장 흔함) — 위 설치 2단계("사용자 스크립트 허용" 토글 또는 개발자 모드)를 켜지 않으면 Tampermonkey 5.3+ 에서 어떤 유저스크립트도 실행되지 않습니다. → [Tampermonkey FAQ Q209](https://www.tampermonkey.net/faq.php?q=Q209)
+2. **`@grant`를 `none`으로 되돌림** (유지보수자 주의) — GitHub은 CSP로 인라인 스크립트(`script-src github.githubassets.com`)를 차단하므로 `@grant none`이면 스크립트가 페이지에 주입되지 못해 실행이 막힙니다. 이 스크립트는 `@grant GM_addStyle`을 선언해 **샌드박스(격리 컨텍스트)** 에서 실행해 CSP를 우회합니다 — `none`으로 되돌리지 마세요.
 
 ## 다른 곳에 호스팅한다면
 
