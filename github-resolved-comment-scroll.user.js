@@ -1,21 +1,27 @@
 // ==UserScript==
 // @name         GitHub: Scroll to Resolved Comment
 // @namespace    https://github.com/korECM
-// @version      0.1.0
+// @version      0.2.0
 // @description  GitHub PR에서 resolve되어 접힌 리뷰 코멘트의 permalink(#discussion_r…)로 이동했을 때, 해당 스레드를 자동으로 펼치고(지연 로드 포함) 그 위치로 스크롤 + 하이라이트합니다.
 // @author       korECM
 // @match        https://github.com/*
 // @run-at       document-idle
 // @noframes
-// @grant        none
+// @grant        GM_addStyle
 // @homepageURL  https://github.com/korECM/github-resolved-comment-scroll
 // @supportURL   https://github.com/korECM/github-resolved-comment-scroll/issues
 // @downloadURL  https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js
 // @updateURL    https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js
 // ==/UserScript==
 
+// @grant 은 절대 none 으로 두지 말 것!
+//   GitHub은 CSP로 `script-src github.githubassets.com` 만 허용(인라인 스크립트 차단)한다.
+//   @grant none 이면 Tampermonkey가 스크립트를 페이지에 인라인 <script>로 주입 → CSP에 막혀
+//   스크립트가 아예 실행되지 않는다. GM_* 권한을 하나라도 선언하면 샌드박스(격리 컨텍스트)에서
+//   실행되어 페이지 CSP를 우회한다. DOM 접근/.click()/스크롤은 샌드박스에서도 동일하게 동작한다.
+//
 // 다른 GitHub 계정/조직 레포에 호스팅한다면 위의 @downloadURL / @updateURL 의 owner(korECM)를
-// 실제 호스팅 위치로 바꿔야 자동 업데이트가 동작합니다. (README 참고)
+// 실제 호스팅 위치로 바꿔야 자동 업데이트가 동작한다. (README 참고)
 
 (function () {
   'use strict';
@@ -29,14 +35,15 @@
   //       class="... js-resolvable-timeline-thread-container ..."
   //       data-resolved="true"
   //       data-deferred-content-url="/.../threads/<n>?..."   ← 토글 시 코멘트 본문을 지연 로드
-  //       data-hidden-comment-ids="3330594042 ...">          ← 숨겨진 코멘트 id 목록
+  //       data-hidden-comment-ids="3330594042,...">          ← 숨겨진 코멘트 id 목록(콤마 구분)
   //     <button data-action="click:review-thread-collapsible#toggle" aria-expanded="false">…</button>
   //   </review-thread-collapsible>
   // 즉 코멘트(#discussion_r<id>)는 토글 전에는 DOM에 없으므로, 컨테이너를 찾아 토글한 뒤
   // 지연 로드된 코멘트가 나타날 때까지 기다렸다 스크롤한다.
   // ---------------------------------------------------------------------------
   const CONFIG = {
-    waitTimeoutMs: 6000, // 펼치고 지연 로드된 코멘트가 렌더될 때까지 기다리는 최대 시간
+    waitTimeoutMs: 8000, // 펼치고 지연 로드된 코멘트가 렌더될 때까지 기다리는 최대 시간
+    pollMs: 150, // 폴링 간격 (setTimeout 기반 — 백그라운드 탭에서도 동작)
     retryClickMs: 800, // 토글 클릭 재시도 간격(웹컴포넌트 upgrade 전 무효 클릭 대비)
     debounceMs: 60, // 여러 네비게이션 이벤트가 몰려 들어올 때 합치는 간격
     flashMs: 1800, // 하이라이트 지속 시간 (CSS animation과 맞춤)
@@ -58,6 +65,7 @@
   const FLASH_CLASS = 'grcs-flash';
 
   let debounceTimer = null;
+  let isRunning = false; // 폴링 루프 중복 실행 방지
 
   // ---------------------------------------------------------------------------
   // 페이지/해시 판별
@@ -163,12 +171,10 @@
     setTimeout(() => el.classList.remove(FLASH_CLASS), CONFIG.flashMs);
   }
 
-  // scrollAndFlash 하이라이트를 먼저 적용(scroll-margin 반영)한 뒤 스크롤한다.
+  // scrollAndFlash 하이라이트(scroll-margin 포함) 적용 후 스크롤한다.
   function scrollAndFlash(el) {
-    flash(el);
-    requestAnimationFrame(() => {
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    });
+    flash(el); // 클래스가 동기적으로 붙어 scroll-margin-top이 즉시 반영됨
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
   // ---------------------------------------------------------------------------
@@ -194,32 +200,39 @@
     }
 
     // 2) 접힌 스레드를 펼치고, 지연 로드된 코멘트가 나타날 때까지 폴링한다.
+    //    setTimeout 기반 폴링 — requestAnimationFrame은 백그라운드 탭에서 멈추므로 쓰지 않는다.
+    if (isRunning) return;
+    isRunning = true;
     const deadline = performance.now() + CONFIG.waitTimeoutMs;
     let lastClickAt = 0;
 
-    await new Promise((resolve) => {
-      (function tick() {
-        const el = firstRendered(ids);
-        if (el) {
-          scrollAndFlash(el);
-          return resolve();
-        }
-        if (performance.now() > deadline) return resolve(); // 조용히 종료(기본 동작 보존)
-
-        const container = findContainer(num, ids);
-        if (container) {
-          ensureDetailsOpen(container);
-          const now = performance.now();
-          // 아직 안 펼쳐졌고 마지막 클릭 후 충분히 지났으면 토글
-          // (웹컴포넌트 upgrade 전의 무효 클릭에 대비한 재시도)
-          if (!isExpanded(container) && now - lastClickAt > CONFIG.retryClickMs) {
-            clickToggle(container);
-            lastClickAt = now;
+    try {
+      await new Promise((resolve) => {
+        (function tick() {
+          const el = firstRendered(ids);
+          if (el) {
+            scrollAndFlash(el);
+            return resolve();
           }
-        }
-        requestAnimationFrame(tick);
-      })();
-    });
+          if (performance.now() > deadline) return resolve(); // 조용히 종료(기본 동작 보존)
+
+          const container = findContainer(num, ids);
+          if (container) {
+            ensureDetailsOpen(container);
+            const now = performance.now();
+            // 아직 안 펼쳐졌고 마지막 클릭 후 충분히 지났으면 토글
+            // (웹컴포넌트 upgrade 전의 무효 클릭에 대비한 재시도)
+            if (!isExpanded(container) && now - lastClickAt > CONFIG.retryClickMs) {
+              clickToggle(container);
+              lastClickAt = now;
+            }
+          }
+          setTimeout(tick, CONFIG.pollMs);
+        })();
+      });
+    } finally {
+      isRunning = false;
+    }
   }
 
   // scheduleHandle 여러 네비게이션 이벤트를 합쳐 한 번만 처리한다.
@@ -230,12 +243,12 @@
 
   // ---------------------------------------------------------------------------
   // 스타일 주입 (하이라이트)
+  // GM_addStyle을 우선 사용(샌드박스/CSP 안전), 없으면 <style> 직접 주입(style-src는 inline 허용).
+  // id="grcs-style" 마커는 "스크립트가 실행 중인지" 진단용으로도 쓰인다.
   // ---------------------------------------------------------------------------
   function injectStyle() {
     if (document.getElementById('grcs-style')) return;
-    const style = document.createElement('style');
-    style.id = 'grcs-style';
-    style.textContent = `
+    const css = `
       @keyframes grcs-flash-kf {
         0%   { box-shadow: 0 0 0 2px rgba(255,193,7,0.95), 0 0 0 7px rgba(255,193,7,0.45); }
         100% { box-shadow: 0 0 0 2px rgba(255,193,7,0),    0 0 0 7px rgba(255,193,7,0); }
@@ -246,7 +259,18 @@
         scroll-margin-top: ${CONFIG.scrollMarginTop}px;
       }
     `;
-    (document.head || document.documentElement).appendChild(style);
+    let el = null;
+    try {
+      if (typeof GM_addStyle === 'function') el = GM_addStyle(css);
+    } catch (e) {
+      /* fallthrough to manual */
+    }
+    if (!el) {
+      el = document.createElement('style');
+      el.textContent = css;
+      (document.head || document.documentElement).appendChild(el);
+    }
+    if (el && !el.id) el.id = 'grcs-style';
   }
 
   // ---------------------------------------------------------------------------
@@ -259,6 +283,11 @@
     // 일반 해시/히스토리 변경
     window.addEventListener('hashchange', scheduleHandle);
     window.addEventListener('popstate', scheduleHandle);
+
+    // 백그라운드 탭으로 연 permalink가, 탭을 다시 볼 때 처리되도록
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') scheduleHandle();
+    });
 
     // GitHub의 Turbo/PJAX 페이지 전환
     document.addEventListener('turbo:load', scheduleHandle);

@@ -49,6 +49,12 @@ GitHub DOM은 자주 바뀌므로(2026년 현재 resolved 스레드는 `<review-
 - 다만 resolve 컨테이너가 아닌 일반 "Load more"/pagination 뒤에 숨어 **아직 DOM에 없는** 코멘트는 점프하지 않고 조용히 종료합니다. 향후 자동 "Load more" 클릭 지원을 고려할 수 있습니다.
 - Files changed 탭의 인라인 스레드는 구조가 조금 다를 수 있어 추가 검증이 필요합니다(현재는 Conversation 탭 기준으로 검증됨).
 
+## 문제 해결
+
+**설치했는데 아무 동작도 안 한다면** — 스크립트가 실행조차 안 되는 경우가 대부분입니다. GitHub은 CSP로 인라인 스크립트(`script-src github.githubassets.com`)를 차단하므로, `@grant none` 유저스크립트는 페이지에 주입되지 못하고 막힙니다. 이 스크립트는 `@grant GM_addStyle`을 선언해 **샌드박스(격리 컨텍스트)** 에서 실행되어 CSP를 우회합니다 — `@grant`를 `none`으로 되돌리지 마세요.
+
+콘솔에서 `document.getElementById('grcs-style')`가 `null`이면 스크립트가 안 돌고 있는 것입니다(매니저 활성화/설치 상태 확인).
+
 ## 다른 곳에 호스팅한다면
 
 이 레포를 `korECM`가 아닌 다른 계정/조직(GitHub org 등)에 올린다면, 자동 업데이트가 동작하도록 아래 두 곳의 owner를 실제 위치로 바꿔 주세요.
