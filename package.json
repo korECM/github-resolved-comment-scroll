@@ -1,0 +1,12 @@
+{
+  "name": "github-resolved-comment-scroll",
+  "version": "1.0.0",
+  "description": "Auto-expand, scroll to, and highlight resolved (collapsed) GitHub review comments from their permalink — userscript + Chrome extension.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://github.com/korECM/github-resolved-comment-scroll",
+  "scripts": {
+    "build": "node build/build.mjs"
+  }
+}
