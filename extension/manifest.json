@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub: Scroll to Resolved Comment",
+  "version": "__VERSION__",
+  "description": "Auto-expand, scroll to, and highlight resolved (collapsed) review comments when you open their permalink (#discussion_r…) on GitHub PRs.",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}
