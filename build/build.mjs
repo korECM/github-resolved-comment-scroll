@@ -49,3 +49,9 @@ if (haveIcons) {
 writeFileSync(join(distExt, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 writeFileSync(join(distExt, 'content.js'), core);
 console.log('✓ extension →', 'dist/extension/');
+
+// 3) Web Store 업로드용 zip → dist/extension.zip
+const zipPath = join(root, 'dist/extension.zip');
+rmSync(zipPath, { force: true });
+execFileSync('zip', ['-r', '-q', '../extension.zip', '.'], { cwd: distExt });
+console.log('✓ zip →', 'dist/extension.zip');
