@@ -21,3 +21,31 @@ const header = readFileSync(join(root, 'userscript/header.txt'), 'utf8')
 const userscript = `${header}\n${core}`;
 writeFileSync(join(root, 'github-resolved-comment-scroll.user.js'), userscript);
 console.log('✓ userscript →', 'github-resolved-comment-scroll.user.js');
+
+// 2) 크롬 확장 → dist/extension/ (manifest + content.js + icons)
+const distExt = join(root, 'dist/extension');
+rmSync(distExt, { recursive: true, force: true });
+mkdirSync(join(distExt, 'icons'), { recursive: true });
+
+const manifest = JSON.parse(
+  readFileSync(join(root, 'extension/manifest.json'), 'utf8').replaceAll('__VERSION__', version),
+);
+
+// 아이콘 16/48/128 이 모두 있으면 manifest에 주입 + 복사, 아니면 생략(경고).
+// 파일 없이 icons를 선언하면 언팩 로드시 에러나므로, 없을 땐 깨끗이 뺀다.
+const sizes = [16, 48, 128];
+const iconsDir = join(root, 'extension/icons');
+const haveIcons = sizes.every((s) => existsSync(join(iconsDir, `icon-${s}.png`)));
+if (haveIcons) {
+  manifest.icons = Object.fromEntries(sizes.map((s) => [String(s), `icons/icon-${s}.png`]));
+  for (const s of sizes) {
+    copyFileSync(join(iconsDir, `icon-${s}.png`), join(distExt, 'icons', `icon-${s}.png`));
+  }
+} else {
+  rmSync(join(distExt, 'icons'), { recursive: true, force: true });
+  console.warn('⚠ extension/icons/icon-{16,48,128}.png 없음 → manifest.icons 생략 (스토어 업로드 전 필요)');
+}
+
+writeFileSync(join(distExt, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+writeFileSync(join(distExt, 'content.js'), core);
+console.log('✓ extension →', 'dist/extension/');
