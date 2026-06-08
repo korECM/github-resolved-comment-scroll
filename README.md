@@ -33,6 +33,15 @@ A userscript that fixes GitHub's broken permalinks to **resolved (collapsed) rev
 
 After installing, open any resolved comment's `…` menu → **Copy link** and try it. Your manager keeps the script up to date automatically.
 
+### As a Chrome extension
+
+Prefer a one-time install with no userscript manager? Load it as an extension:
+
+1. Build the unpacked extension: `pnpm build` (output: `dist/extension/`).
+2. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select `dist/extension/`.
+
+A Chrome Web Store listing will be linked here once published. The extension's content script runs in an isolated world, so the Chrome/Edge "Allow user scripts" toggle is **not** required.
+
 ## Not working?
 
 Run `document.getElementById('grcs-style')` in the DevTools console. If it returns `null`, the script isn't running. Two common causes:
@@ -80,6 +89,15 @@ GitHub PR에서 **resolve되어 접힌 리뷰 코멘트의 permalink**(`...#disc
    👉 **[Greasy Fork에서 설치](https://greasyfork.org/ko/scripts/580818-github-scroll-to-resolved-comment)** (권장) — 또는 [raw 파일로 설치](https://raw.githubusercontent.com/korECM/github-resolved-comment-scroll/main/github-resolved-comment-scroll.user.js)
 
 설치 후 resolve된 코멘트의 `…` 메뉴 → **Copy link** URL을 열어 확인하세요. 업데이트는 매니저가 자동으로 갱신합니다.
+
+### Chrome 확장으로 설치
+
+유저스크립트 매니저 없이 한 번에 설치하려면 확장으로 불러옵니다:
+
+1. 언팩 확장 빌드: `pnpm build` (산출물: `dist/extension/`)
+2. `chrome://extensions` → **개발자 모드** 켜기 → **압축해제된 확장 프로그램을 로드** → `dist/extension/` 선택
+
+Chrome Web Store 등록 후 여기에 링크를 추가합니다. 확장 content script는 isolated world에서 실행되므로 Chrome/Edge의 "사용자 스크립트 허용" 설정이 **필요 없습니다**.
 
 ## 안 될 때
 
